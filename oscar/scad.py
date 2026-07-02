@@ -1,7 +1,7 @@
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from .constants import SUPPORTED_EXPORT_FORMATS, ExportFormatType
 
@@ -47,6 +47,19 @@ class ScadInterface:
         version = tokens[2]
         return version
 
+    def edit(
+        self,
+        input_paths: List[Path],
+        variables: Optional[Dict] = None,
+        cwd: Optional[Path] = None,
+    ):
+        cmd = [str(self.binary)]
+        cmd.extend([str(p) for p in input_paths])
+        if variables is not None:
+            for k, v in variables.items():
+                cmd.extend(["-D", f"{k}={v}"])
+        subprocess.run(cmd, cwd=cwd)
+
     def compile(
         self,
         input_path: Path,
@@ -54,7 +67,7 @@ class ScadInterface:
         output_format: ExportFormatType = "stl",
         ascii: bool = True,
         variables: Optional[Dict] = None,
-        cwd: Optional[Path] = None
+        cwd: Optional[Path] = None,
     ):
         """
         _summary_

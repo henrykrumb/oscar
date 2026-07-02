@@ -1,13 +1,14 @@
 [project]
 name = "oscar"
 version = "0.1.0"
-description = "Add your description here"
+description = "Project management utility for OpenSCAD"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "click>=8.4.2",
     "mypy>=2.1.0",
     "ruff>=0.15.20",
+    "watchdog>=6.0.0",
 ]
 
 [project.scripts]

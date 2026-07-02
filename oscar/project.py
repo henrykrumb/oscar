@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import click
@@ -9,7 +10,8 @@ from .scad import ScadInterface
 DEFAULT_PROJECT_TOML = """\
 [project]
 name = "{name}"
-version = "0.0.1"
+version = "0.1.0"
+oscar = "0.1.0"
 """
 
 DEFAULT_MAIN_CONTENT = """\
@@ -27,7 +29,7 @@ module dummy() {
 
 
 PROJECT_DIRECTORIES = ["src", "build"]
-PROJECT_FILES = {"scad.toml": DEFAULT_PROJECT_TOML}
+PROJECT_FILES = {"oscar.toml": DEFAULT_PROJECT_TOML}
 
 
 class Project:
@@ -39,31 +41,32 @@ class Project:
             "project_name": f'"{self.name}"',
             "project_version": f'"{self.version}"',
         }
+        self.ready = False
 
     @staticmethod
-    def init(name: str):
-        """
-        _summary_
-
-        :param name: _description_
-        :type name: str
-        :raises SystemExit: _description_
-        :return: _description_
-        :rtype: _type_
-        """
+    def new(name: str, empty: bool = False):
         root = Path.cwd() / name
-
         if root.exists():
             raise SystemExit(f"Project {name} already exists.")
+        root.mkdir(exist_ok=False)
+        os.chdir(root)
+        project = Project.init(empty=empty)
+        return project
 
+    @staticmethod
+    def init(empty: bool = False):
+        root = Path.cwd()
+        name = root.name
+        # TODO validate if legal project name (shouldn't have whitespace or special chars)
         for directory in PROJECT_DIRECTORIES:
-            (root / directory).mkdir(parents=True)
+            (root / directory).mkdir()
 
         for filename, content in PROJECT_FILES.items():
             (root / filename).write_text(content.format(name=name))
 
-        (root / "src" / "main.scad").write_text(DEFAULT_MAIN_CONTENT)
-        (root / "src" / "_parts.scad").write_text(DEFAULT_LIB_CONTENT)
+        if not empty:
+            (root / "src" / "main.scad").write_text(DEFAULT_MAIN_CONTENT)
+            (root / "src" / "_parts.scad").write_text(DEFAULT_LIB_CONTENT)
         return Project.load(root)
 
     @staticmethod
@@ -96,14 +99,23 @@ class Project:
         :rtype: Project
         """
         Project.validate_project_dir(path)
-        with open(path / "scad.toml", "rb") as f:
+        with open(path / "oscar.toml", "rb") as f:
             config = tomllib.load(f)
         name = config["project"]["name"]
         version = config["project"]["version"]
         project = Project(path, name, version)
         if "variables" in config["project"]:
             project.variables.update(config["project"]["variables"])
+        project.ready = True
         return project
+
+    @property
+    def source_path(self):
+        return self.path / "src"
+
+    @property
+    def scad_files(self):
+        return sorted(list(self.source_path.glob("*.scad")))
 
     def build(self, output_format: ExportFormatType = "stl"):
         """

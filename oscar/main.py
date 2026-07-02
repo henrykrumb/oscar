@@ -27,11 +27,23 @@ def clean():
     project.clean()
 
 
-@cli.command(help="Create a new OpenSCAD project.")
+@cli.command(help="Initialize an OpenSCAD/oscar project inside the current directory.")
+@click.option(
+    "--empty", "-e", is_flag=True, help="Don't populate the project with example files"
+)
+def init(empty):
+    project = Project.init(empty=empty)
+    click.secho(f"Project {project.name} created in {project.path}", fg="green")
+
+
+@cli.command(help="Create a new OpenSCAD project and cd to it.")
+@click.option(
+    "--empty", "-e", is_flag=True, help="Don't populate the project with example files"
+)
 @click.argument("name")
-def init(name):
-    project = Project.init(name)
-    click.secho(f"Project {name} created in {project.path}", fg="green")
+def new(empty, name):
+    project = Project.new(name, empty=empty)
+    click.secho(f"Project {project.name} created in {project.path}", fg="green")
 
 
 @cli.command(help="Display info about OpenSCAD system installation.")
@@ -44,11 +56,6 @@ def scad():
 
 
 @cli.command()
-def watch():
-    raise NotImplementedError()
-
-
-@cli.command()
 @click.option("--output", "-o", type=click.Path(exists=False))
 def pack(output):
     project = Project.load(Path.cwd())
@@ -58,3 +65,12 @@ def pack(output):
 @cli.command()
 def unpack():
     raise NotImplementedError()
+
+
+@cli.command("Open the OpenSCAD editor inside the project environment")
+# TODO options that reflect openscad editor options
+@click.option("--watch", "-w", is_flag=True)
+def edit():
+    project = Project.load(Path.cwd())
+    scad = ScadInterface()
+    scad.edit(project.scad_files, variables=project.variables, cwd=project.path)

@@ -55,22 +55,28 @@ def scad():
     click.secho(f"OpenSCAD version: {version}")
 
 
-@cli.command()
+@cli.command(help="")
 @click.option("--output", "-o", type=click.Path(exists=False))
 def pack(output):
     project = Project.load(Path.cwd())
     project.pack(output)
 
 
-@cli.command()
+@cli.command(help="")
 def unpack():
     raise NotImplementedError()
 
 
-@cli.command("Open the OpenSCAD editor inside the project environment")
+@cli.command(help="Open the OpenSCAD editor inside the project environment")
 # TODO options that reflect openscad editor options
 @click.option("--watch", "-w", is_flag=True)
-def edit():
+def edit(watch):
     project = Project.load(Path.cwd())
     scad = ScadInterface()
     scad.edit(project.scad_files, variables=project.variables, cwd=project.path)
+
+
+@cli.command(help="")
+@click.argument("", type=click.Choice(["major", "minor", "patch"]))
+def bump():
+    raise NotImplementedError("")

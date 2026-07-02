@@ -27,9 +27,19 @@ module dummy() {
 }
 """
 
+DEFAULT_GITIGNORE_CONTENT = """\
+*.stl
+*.dxf
+*.3mf
+oscar.lock
+"""
+
 
 PROJECT_DIRECTORIES = ["src", "build"]
-PROJECT_FILES = {"oscar.toml": DEFAULT_PROJECT_TOML}
+PROJECT_FILES = {
+    "oscar.toml": DEFAULT_PROJECT_TOML,
+    ".gitignore": DEFAULT_GITIGNORE_CONTENT,
+}
 
 
 class Project:
@@ -142,6 +152,7 @@ class Project:
                 variables=self.variables,
                 cwd=source_path,
             )
+            # TODO increment build counter for part and save value to oscar.lock
             click.secho(
                 f"Done building {input_file}, result can be found in {output_filename} .",
                 fg="green",

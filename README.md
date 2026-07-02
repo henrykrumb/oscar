@@ -12,14 +12,16 @@
 
 
 Features:
-* Configure 
-* Auto-export 3D models (e.g. STL) upon save (optional)
+* Semantic versioning of parts
 
 Planned features:
+* Auto-export 3D models (e.g. STL) upon save (optional)
+* Packing and unpacking projects for distribution
 * Auto-generate thumbnails
 * Generate animations
 * Explosion drawings
 * Dimension drawings
+* Last modified date as special variable
 
 
 ## Installation
@@ -128,9 +130,38 @@ oscar unpack MYPROJECT.zip
 
 ## Cleaning up
 
+To remove all artifacts generated through `oscar build`, run:
+
 ```bash
 oscar clean
 ```
 
 
 ## Special Variables
+
+If you're designing a part and want to keep track of its version, you can directly access it from OpenSCAD (if opened through `oscar edit`).
+For instance, this piece of code would show the version and project name in a 3D shape:
+
+```openscad
+linear_extrude(1) {
+    text(project_version);
+    translate([0, 100, 0])
+    text(project_name);
+}
+```
+
+You can also create custom variables in `oscar.toml` like so:
+
+```toml
+[project]
+name = "myproject"
+version = "0.1.0"
+oscar = "0.1.0"
+variables = { myvar = 42 }
+```
+
+which can then be accessed in your OpenSCAD code directly:
+
+```openscad
+cube([myvar, myvar, myvar]); // will create a 42x42x42 cube
+```

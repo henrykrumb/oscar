@@ -3,6 +3,7 @@ from pathlib import Path
 import click
 
 from .constants import SUPPORTED_EXPORT_FORMATS
+from .module import Module
 from .project import Project
 from .scad import ScadInterface
 
@@ -18,7 +19,7 @@ def cli():
 )
 def build(format):
     project = Project.load(Path.cwd())
-    project.build()
+    project.build(format)
 
 
 @cli.command(help="Clean up exported models and images.")
@@ -51,8 +52,10 @@ def scad():
     scad = ScadInterface()
     binary = scad.binary
     version = scad.version
+    library_path = scad.user_library_path
     click.secho(f"OpenSCAD binary: {binary}")
     click.secho(f"OpenSCAD version: {version}")
+    click.secho(f"OpenSCAD user library path: {library_path}")
 
 
 @cli.command(help="")
@@ -80,3 +83,14 @@ def edit(watch):
 @click.argument("", type=click.Choice(["major", "minor", "patch"]))
 def bump():
     raise NotImplementedError("")
+
+
+@cli.command(help="Install an indexed OpenSCAD library")
+@click.option("--local", "-l", is_flag=True, help="Install project-local")
+@click.argument("module")
+def install(local, module):
+    mod = Module(module)
+    if local:
+        mod.install_local()
+    else:
+        mod.install_system()

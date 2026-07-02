@@ -94,3 +94,17 @@ class ScadInterface:
             for k, v in variables.items():
                 cmd.extend(["-D", f"{k}={v}"])
         subprocess.run(cmd, cwd=cwd)
+
+    def info(self):
+        cmd = f"{self.binary} --info"
+        output = subprocess.getoutput(cmd)
+        return output
+
+    @property
+    def user_library_path(self) -> Path:
+        info = self.info()
+        lines = info.splitlines()
+        user_lib_line = [L for L in lines if L.startswith("User Library Path")]
+        assert len(user_lib_line) > 0
+        user_lib_path = user_lib_line[0].split(": ")[1]
+        return Path(user_lib_path)

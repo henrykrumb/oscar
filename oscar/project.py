@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import click
-import tomllib
+import toml
 
 from .constants import SUPPORTED_EXPORT_FORMATS, ExportFormatType
 from .scad import ScadInterface
@@ -12,6 +12,10 @@ DEFAULT_PROJECT_TOML = """\
 name = "{name}"
 version = "0.1.0"
 oscar = "0.1.0"
+
+[project.variables]
+
+[project.modules]
 """
 
 DEFAULT_MAIN_CONTENT = """\
@@ -51,6 +55,7 @@ class Project:
             "project_name": f'"{self.name}"',
             "project_version": f'"{self.version}"',
         }
+        self.modules = {}
         self.ready = False
 
     @staticmethod
@@ -109,8 +114,8 @@ class Project:
         :rtype: Project
         """
         Project.validate_project_dir(path)
-        with open(path / "oscar.toml", "rb") as f:
-            config = tomllib.load(f)
+        with open(path / "oscar.toml", "r") as f:
+            config = toml.load(f)
         name = config["project"]["name"]
         version = config["project"]["version"]
         project = Project(path, name, version)
@@ -178,7 +183,7 @@ class Project:
         :raises NotImplementedError: _description_
         """
         Project.validate_project_dir(self.path)
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def unpack(path: Path):
@@ -189,4 +194,12 @@ class Project:
         :type path: Path
         :raises NotImplementedError: _description_
         """
-        raise NotImplementedError()
+        raise NotImplementedError
+
+    def save(self):
+        Project.validate_project_dir(self.path)
+        config = toml.load(self.path / "oscar.toml")
+        config["project"]["modules"] = self.modules
+        config["project"]["variables"] = self.variables
+        with open(self.path / "oscar.toml", "w") as f:
+            toml.dump(config, f)

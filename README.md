@@ -22,6 +22,8 @@ Planned features:
 * Explosion drawings
 * Dimension drawings
 * Last modified date as special variable
+* Adding libraries through an index of common libs or links to git repo
+* Make oscar-managed projects installable within other oscar projects
 
 
 ## Installation
@@ -62,9 +64,10 @@ This will create a new project directory with the following structure:
 
 ```
 myproject
-├── build
+├── build/
+├── .gitignore
 ├── oscar.toml
-└── src
+└── src/
     ├── main.scad
     └── _parts.scad
 ```

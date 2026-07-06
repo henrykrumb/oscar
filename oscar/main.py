@@ -1,3 +1,7 @@
+"""
+Handle command line arguments and subcommands through `click`.
+"""
+
 from pathlib import Path
 
 import click
@@ -13,42 +17,72 @@ def cli():
     pass
 
 
-@cli.command(help="Build the entire project")
+@cli.command()
 @click.option(
-    "--format", "-f", type=click.Choice(SUPPORTED_EXPORT_FORMATS), default="stl"
+    "--format",
+    "-f",
+    type=click.Choice(SUPPORTED_EXPORT_FORMATS),
+    default="stl",
+    help="Export format",
 )
 def build(format):
+    """
+    Build an entire project.
+
+    :param format: Export format
+    :type format: Legal export format
+    """
     project = Project.load(Path.cwd())
     project.build(format)
 
 
-@cli.command(help="Clean up exported models and images.")
+@cli.command(help="Clean up exported models and images")
 def clean():
+    """
+    Clean up exported models and images.
+    """
     project = Project.load(Path.cwd())
     project.clean()
 
 
-@cli.command(help="Initialize an OpenSCAD/oscar project inside the current directory.")
+@cli.command(help="Initialize an oscar project inside the current directory")
 @click.option(
     "--empty", "-e", is_flag=True, help="Don't populate the project with example files"
 )
-def init(empty):
+def init(empty: bool):
+    """
+    Initialize an OpenSCAD/oscar project inside the current directory.
+
+    :param empty: If true, don't populate the project with example files
+    :type empty: bool
+    """
     project = Project.init(empty=empty)
     click.secho(f"Project {project.name} created in {project.path}", fg="green")
 
 
-@cli.command(help="Create a new OpenSCAD project and cd to it.")
+@cli.command(help="Create a new OpenSCAD project")
 @click.option(
     "--empty", "-e", is_flag=True, help="Don't populate the project with example files"
 )
-@click.argument("name")
-def new(empty, name):
+@click.argument("name", type=str)
+def new(empty: bool, name: str):
+    """
+    Create a new OpenSCAD project.
+
+    :param empty: If true, don't populate the project with example files
+    :type empty: bool
+    :param name: Project (and directory) name
+    :type name: str
+    """
     project = Project.new(name, empty=empty)
     click.secho(f"Project {project.name} created in {project.path}", fg="green")
 
 
 @cli.command(help="Display info about OpenSCAD system installation.")
 def scad():
+    """
+    Display info about OpenSCAD system installation.
+    """
     scad = ScadInterface()
     binary = scad.binary
     version = scad.version
@@ -61,28 +95,42 @@ def scad():
 @cli.command(help="")
 @click.option("--output", "-o", type=click.Path(exists=False))
 def pack(output):
+    """
+    :param output: _description_
+    :type output: _type_
+    """
     project = Project.load(Path.cwd())
     project.pack(output)
 
 
 @cli.command(help="")
 def unpack():
+    """
+    """
     raise NotImplementedError()
 
 
 @cli.command(help="Open the OpenSCAD editor inside the project environment")
-# TODO options that reflect openscad editor options
+# TODO add options that reflect openscad editor options
 @click.option("--watch", "-w", is_flag=True)
-def edit(watch):
+def edit(watch: bool):
+    """
+    Open the OpenSCAD editor inside the project environment
+
+    :param watch: _description_
+    :type watch: _type_
+    """
     project = Project.load(Path.cwd())
     scad = ScadInterface()
     scad.edit(project.scad_files, variables=project.variables, cwd=project.path)
 
 
-@cli.command(help="")
-@click.argument("", type=click.Choice(["major", "minor", "patch"]))
-def bump():
-    raise NotImplementedError("")
+@cli.command(help="Update an oscar project's version")
+@click.argument("value", type=click.Choice(["major", "minor", "patch"]))
+def bump(value):
+    project = Project.load(Path.cwd())
+    project.bump(value)
+    project.save()
 
 
 @cli.command(help="Install an indexed OpenSCAD library")

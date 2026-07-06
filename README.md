@@ -79,6 +79,10 @@ myproject
 name = "myproject"
 version = "0.1.0"
 oscar = "0.1.0"
+
+[project.variables]
+
+[project.modules]
 ```
 
 ### Build
@@ -160,7 +164,12 @@ You can also create custom variables in `oscar.toml` like so:
 name = "myproject"
 version = "0.1.0"
 oscar = "0.1.0"
-variables = { myvar = 42 }
+
+[project.variables]
+myvar = 42
+
+[project.modules]
+
 ```
 
 which can then be accessed in your OpenSCAD code directly:
@@ -168,3 +177,8 @@ which can then be accessed in your OpenSCAD code directly:
 ```openscad
 cube([myvar, myvar, myvar]); // will create a 42x42x42 cube
 ```
+
+
+## Installing third-party modules
+
+

@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
+from typing import Literal
 
 import click
+import semver
 import toml
 
 from .constants import SUPPORTED_EXPORT_FORMATS, ExportFormatType
@@ -39,7 +41,7 @@ oscar.lock
 """
 
 
-PROJECT_DIRECTORIES = ["src", "build"]
+PROJECT_DIRECTORIES = ["src", "build", "modules"]
 PROJECT_FILES = {
     "oscar.toml": DEFAULT_PROJECT_TOML,
     ".gitignore": DEFAULT_GITIGNORE_CONTENT,
@@ -105,14 +107,6 @@ class Project:
 
     @staticmethod
     def load(path: Path) -> "Project":
-        """
-        _summary_
-
-        :param path: _description_
-        :type path: Path
-        :return: _description_
-        :rtype: Project
-        """
         Project.validate_project_dir(path)
         with open(path / "oscar.toml", "r") as f:
             config = toml.load(f)
@@ -124,12 +118,41 @@ class Project:
         project.ready = True
         return project
 
+    def bump(self, value: Literal["major", "minor", "patch"]):
+        """
+        _summary_
+
+        :param value: _description_
+        :type value: Literal[&quot;major&quot;, &quot;minor&quot;, &quot;patch&quot;]
+        """
+        ver = semver.Version.parse(self.version)
+        match value:
+            case "major":
+                ver.bump_major()
+            case "minor":
+                ver.bump_minor()
+            case "patch":
+                ver.bump_patch()
+        self.version = str(ver)
+
     @property
     def source_path(self):
+        """
+        _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """
         return self.path / "src"
 
     @property
     def scad_files(self):
+        """
+        _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """
         return sorted(list(self.source_path.glob("*.scad")))
 
     def build(self, output_format: ExportFormatType = "stl"):
@@ -175,31 +198,24 @@ class Project:
                 output_file.unlink()
 
     def pack(self, output_path: Path):
-        """
-        _summary_
-
-        :param output_path: _description_
-        :type output_path: Path
-        :raises NotImplementedError: _description_
-        """
         Project.validate_project_dir(self.path)
         raise NotImplementedError
 
     @staticmethod
     def unpack(path: Path):
-        """
-        _summary_
-
-        :param path: _description_
-        :type path: Path
-        :raises NotImplementedError: _description_
-        """
         raise NotImplementedError
 
     def save(self):
+        """
+        _summary_
+        """
         Project.validate_project_dir(self.path)
         config = toml.load(self.path / "oscar.toml")
         config["project"]["modules"] = self.modules
-        config["project"]["variables"] = self.variables
+        config["project"]["variables"] = {
+            k: v
+            for k, v in self.variables.items()
+            if k not in ("project_version", "project_name")
+        }
         with open(self.path / "oscar.toml", "w") as f:
             toml.dump(config, f)

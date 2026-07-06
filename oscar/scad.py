@@ -96,12 +96,24 @@ class ScadInterface:
         subprocess.run(cmd, cwd=cwd)
 
     def info(self):
+        """
+        _summary_
+
+        :return: _description_
+        :rtype: _type_
+        """
         cmd = f"{self.binary} --info"
         output = subprocess.getoutput(cmd)
         return output
 
     @property
     def user_library_path(self) -> Path:
+        """
+        _summary_
+
+        :return: _description_
+        :rtype: Path
+        """
         info = self.info()
         lines = info.splitlines()
         user_lib_line = [L for L in lines if L.startswith("User Library Path")]

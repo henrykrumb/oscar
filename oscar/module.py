@@ -1,4 +1,3 @@
-import logging
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -71,7 +70,20 @@ class Module:
         Repo.clone_from(self.clone, destination, progress=ProgressPrinter())
 
     def _download_and_unpack_zip(self, destination):
-        raise NotImplementedError
+        assert self.download is not None
+        parts = urlsplit(self.download)
+        filename = destination / ".." / parts.path.split("/")[-1]
+        with requests.get(self.download, stream=True) as r:
+            r.raise_for_status()
+            with open(filename, "wb") as f:
+                for chunk in tqdm(
+                    r.iter_content(chunk_size=1024),
+                    total=int(r.headers.get("content-length", 0)) // 1024,
+                    unit="KB",
+                ):
+                    f.write(chunk)
+            shutil.unpack_archive(filename, destination)
+            filename.unlink()
 
     def _download_scad(self, destination: Path):
         assert self.download is not None

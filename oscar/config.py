@@ -17,7 +17,20 @@ download = "https://github.com/BelfrySCAD/BOSL2/archive/refs/heads/master.zip"
 license = "BSD-2-Clause"
 
 [modules.dotSCAD]
-download = 
+download = "https://github.com/JustinSDK/dotSCAD/archive/refs/tags/v3.3.zip"
+
+[modules.NopSCADlib]
+clone = "https://github.com/nophead/NopSCADlib"
+
+[modules.UBscad]
+name = "UB.scad"
+download = "https://raw.githubusercontent.com/UBaer21/UB.scad/main/libraries/ub.scad"
+
+[modules.FunctionalOpenSCAD]
+clone = "https://github.com/thehans/FunctionalOpenSCAD"
+
+[modules.constructive]
+clone = "https://github.com/solidboredom/constructive"
 
 [modules.thread-profile]
 download = "https://github.com/MisterHW/IoP-satellite/blob/master/OpenSCAD%20bottle%20threads/thread_profile.scad"

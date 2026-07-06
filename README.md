@@ -181,4 +181,23 @@ cube([myvar, myvar, myvar]); // will create a 42x42x42 cube
 
 ## Installing third-party modules
 
+Coming soon.
 
+## Semantic versioning
+
+Your oscar project is versioned according to the semantic versioning syntax (simplified to major.minor.patch for now).
+If you're planning to increment the version of your oscar project, you could either edit `oscar.toml` or call:
+ `oscar bump patch`, `oscar bump minor` or `oscar bump major` respectively.
+ For now, these commands should have no notable side effects apart from making an edit to `oscar.toml` (while validating the project layout and version string).
+
+## Config overrides
+
+It is possible to specify a scad-file-specific configuration by prepending a shebang-line
+at the start of a file (can be prefixed by empty lines or whitespace).
+For instance, if your project mainly exports STL files, but a single file is a 2D object that is supposed to be
+exported to SVG, you could prepend the following shebang line:
+
+```OpenSCAD
+// export-format=svg
+circle(r=10);
+```

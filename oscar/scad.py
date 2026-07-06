@@ -64,7 +64,7 @@ class ScadInterface:
         self,
         input_path: Path,
         output_path: Optional[Path] = None,
-        output_format: ExportFormatType = "stl",
+        output_format: ExportFormatType | str = "stl",
         ascii: bool = True,
         variables: Optional[Dict] = None,
         cwd: Optional[Path] = None,

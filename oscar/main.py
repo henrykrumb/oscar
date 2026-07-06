@@ -130,7 +130,6 @@ def edit(watch: bool):
 def bump(value):
     project = Project.load(Path.cwd())
     project.bump(value)
-    project.save()
 
 
 @cli.command(help="Install an indexed OpenSCAD library")

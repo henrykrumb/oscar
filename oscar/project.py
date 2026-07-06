@@ -8,6 +8,7 @@ import toml
 
 from .constants import SUPPORTED_EXPORT_FORMATS, ExportFormatType
 from .scad import ScadInterface
+from .utils import parse_scad_shebang
 
 DEFAULT_PROJECT_TOML = """\
 [project]
@@ -52,10 +53,10 @@ class Project:
     def __init__(self, path: Path, name: str, version: str):
         self.path = path
         self.name = name
-        self.version = version
+        self.version = semver.Version.parse(version)
         self.variables = {
             "project_name": f'"{self.name}"',
-            "project_version": f'"{self.version}"',
+            "project_version": f'"{str(self.version)}"',
         }
         self.modules = {}
         self.ready = False
@@ -120,20 +121,19 @@ class Project:
 
     def bump(self, value: Literal["major", "minor", "patch"]):
         """
-        _summary_
+        Bump version of oscar project.
 
-        :param value: _description_
+        :param value: Which of the parts of the semver string should be bumped.
         :type value: Literal[&quot;major&quot;, &quot;minor&quot;, &quot;patch&quot;]
         """
-        ver = semver.Version.parse(self.version)
         match value:
             case "major":
-                ver.bump_major()
+                self.version.bump_major()
             case "minor":
-                ver.bump_minor()
+                self.version.bump_minor()
             case "patch":
-                ver.bump_patch()
-        self.version = str(ver)
+                self.version.bump_patch()
+        self.save()
 
     @property
     def source_path(self):
@@ -155,12 +155,12 @@ class Project:
         """
         return sorted(list(self.source_path.glob("*.scad")))
 
-    def build(self, output_format: ExportFormatType = "stl"):
+    def build(self, output_format: ExportFormatType | str = "stl"):
         """
-        _summary_
+        Build all *.scad files in src/ directory and save resulting models to build/ directory.
 
-        :param output_format: _description_, defaults to "stl"
-        :type output_format: ExportFormatType, optional
+        :param output_format: Export format supported by OpenSCAD, defaults to "stl"
+        :type output_format: ExportFormatType | str, optional
         """
         Project.validate_project_dir(self.path)
         scad = ScadInterface()
@@ -173,6 +173,8 @@ class Project:
             output_filename = (
                 output_path / input_file.with_suffix(f".{output_format}").name
             )
+            config_override = parse_scad_shebang(input_file)
+            output_format = config_override.get("export-format", output_format)
             scad.compile(
                 input_file,
                 output_path=output_filename,
@@ -188,7 +190,7 @@ class Project:
 
     def clean(self):
         """
-        _summary_
+        Clean up build directory.
         """
         Project.validate_project_dir(self.path)
         output_path = self.path / "build"
@@ -197,17 +199,9 @@ class Project:
                 click.secho(f"Cleaning file {output_file}.", fg="blue")
                 output_file.unlink()
 
-    def pack(self, output_path: Path):
-        Project.validate_project_dir(self.path)
-        raise NotImplementedError
-
-    @staticmethod
-    def unpack(path: Path):
-        raise NotImplementedError
-
     def save(self):
         """
-        _summary_
+        Save changes made by CLI commands back to oscar.toml, e.g. when version was bumped.
         """
         Project.validate_project_dir(self.path)
         config = toml.load(self.path / "oscar.toml")
@@ -219,3 +213,11 @@ class Project:
         }
         with open(self.path / "oscar.toml", "w") as f:
             toml.dump(config, f)
+
+    def pack(self, output_path: Path):
+        Project.validate_project_dir(self.path)
+        raise NotImplementedError
+
+    @staticmethod
+    def unpack(path: Path):
+        raise NotImplementedError

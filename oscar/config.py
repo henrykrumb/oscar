@@ -10,6 +10,19 @@ DEFAULT_MODULE_INDEX = """\
 [modules]
 [modules.BOSL2]
 download = "https://github.com/BelfrySCAD/BOSL2/archive/refs/heads/master.zip"
+
+[modules.thread-profile]
+download = "https://github.com/MisterHW/IoP-satellite/blob/master/OpenSCAD%20bottle%20threads/thread_profile.scad"
+
+[modules.list-comprehension-demos]
+clone = "https://github.com/openscad/list-comprehension-demos"
+
+[modules.scad-utils]
+clone = "https://github.com/openscad/scad-utils"
+
+[modules.threadlib]
+wants = [ "scad-utils", "list-comprehension-demos", "thread-profile" ]
+clone = "https://github.com/adrianschlatter/threadlib"
 """
 
 

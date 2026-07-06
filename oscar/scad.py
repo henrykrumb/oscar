@@ -14,11 +14,10 @@ class ScadInterface:
     @staticmethod
     def find_openscad_binary() -> Path:
         """
-        _summary_
+        Find the OpenSCAD binary on the user's system.
 
-        :raises RuntimeError: _description_
-        :raises RuntimeError: _description_
-        :return: _description_
+        :raises RuntimeError: If binary could not be found.
+        :return: Path to OpenSCAD binary.
         :rtype: Path
         """
         bin = shutil.which("openscad")
@@ -53,6 +52,16 @@ class ScadInterface:
         variables: Optional[Dict] = None,
         cwd: Optional[Path] = None,
     ):
+        """
+        Open the OpenSCAD editor inside a specified cwd.
+
+        :param input_paths: _description_
+        :type input_paths: List[Path]
+        :param variables: _description_, defaults to None
+        :type variables: Optional[Dict], optional
+        :param cwd: _description_, defaults to None
+        :type cwd: Optional[Path], optional
+        """
         cmd = [str(self.binary)]
         cmd.extend([str(p) for p in input_paths])
         if variables is not None:
@@ -70,19 +79,19 @@ class ScadInterface:
         cwd: Optional[Path] = None,
     ):
         """
-        _summary_
+        Use OpenSCAD to compile an input `*.scad` file.
 
-        :param input_path: _description_
+        :param input_path: Path to input scad file.
         :type input_path: Path
-        :param output_path: _description_, defaults to None
+        :param output_path: Destination path, defaults to None
         :type output_path: Optional[Path], optional
-        :param output_format: _description_, defaults to "stl"
-        :type output_format: ExportFormatType, optional
-        :param ascii: _description_, defaults to True
+        :param output_format: Export format, defaults to "stl"
+        :type output_format: ExportFormatType | str, optional
+        :param ascii: For stl files; whether to export as ASCII, defaults to True
         :type ascii: bool, optional
         :param variables: _description_, defaults to None
         :type variables: Optional[Dict], optional
-        :param cwd: _description_, defaults to None
+        :param cwd: Current working directory (relevant for imports/includes), defaults to None
         :type cwd: Optional[Path], optional
         """
         assert output_format in SUPPORTED_EXPORT_FORMATS
@@ -95,12 +104,12 @@ class ScadInterface:
                 cmd.extend(["-D", f"{k}={v}"])
         subprocess.run(cmd, cwd=cwd)
 
-    def info(self):
+    def info(self) -> str:
         """
-        _summary_
+        Calls `openscad --info` and return its output.
 
-        :return: _description_
-        :rtype: _type_
+        :return: Info string
+        :rtype: str
         """
         cmd = f"{self.binary} --info"
         output = subprocess.getoutput(cmd)
@@ -109,9 +118,10 @@ class ScadInterface:
     @property
     def user_library_path(self) -> Path:
         """
-        _summary_
+        Get OpenSCAD user-specific library path by issuing a call to `openscad --info`
+        and parsing the output.
 
-        :return: _description_
+        :return: Path to OpenSCAD third-party library path.
         :rtype: Path
         """
         info = self.info()

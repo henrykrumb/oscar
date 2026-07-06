@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 
 from .constants import SUPPORTED_EXPORT_FORMATS
-from .module import Module
+from .moduleindex import ModuleIndex
 from .project import Project
 from .scad import ScadInterface
 
@@ -133,11 +133,12 @@ def bump(value):
 
 
 @cli.command(help="Install an indexed OpenSCAD library")
-@click.option("--local", "-l", is_flag=True, help="Install project-local")
+@click.option("--system", "-s", is_flag=True, help="Install in OpenSCAD library path")
+@click.option("--reinstall", "-r", is_flag=True, help="Force reinstallation of module and dependencies")
 @click.argument("module")
-def install(local, module):
-    mod = Module(module)
-    if local:
-        mod.install_local()
+def install(system, reinstall, module):
+    index = ModuleIndex()
+    if system:
+        index.install_system(module, force=reinstall)
     else:
-        mod.install_system()
+        index.install_local(module, force=reinstall)

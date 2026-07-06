@@ -12,7 +12,8 @@
 
 
 Features:
-* Semantic versioning of parts
+* Easily install indexed third-party OpenSCAD modules (libraries)
+* Semantic versioning of projects
 
 Planned features:
 * Auto-export 3D models (e.g. STL) upon save (optional)
@@ -22,7 +23,6 @@ Planned features:
 * Explosion drawings
 * Dimension drawings
 * Last modified date as special variable
-* Adding libraries through an index of common libs or links to git repo
 * Make oscar-managed projects installable within other oscar projects
 
 

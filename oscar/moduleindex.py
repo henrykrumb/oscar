@@ -15,7 +15,7 @@ class ModuleIndex:
         with open(MODULE_INDEX_PATH, "r") as f:
             module_index = toml.load(f)
         module_defs = module_index["modules"]
-        self.modules = {
+        self._modules = {
             key: Module.from_dict(key, value) for key, value in module_defs.items()
         }
 
@@ -23,6 +23,10 @@ class ModuleIndex:
         if key not in self.modules:
             raise RuntimeError(f"Module {key} not in index.")
         return self.modules[key]
+
+    @property
+    def modules(self):
+        return self._modules
 
     def _get_dependency_tree(self, module: "Module") -> List["Module"]:
         dependencies = [self[w] for w in module.wants]

@@ -142,3 +142,17 @@ def install(system, reinstall, module):
         index.install_system(module, force=reinstall)
     else:
         index.install_local(module, force=reinstall)
+
+
+@cli.command("index")
+@click.option("-d", "--dependencies", is_flag=True)
+def index(dependencies):
+    index = ModuleIndex()
+    module_keys = sorted(list(index.modules.keys()))
+    for key in module_keys:
+        s = key
+        if dependencies and len(index[key].wants) > 0:
+            s = f"{key}  -->  {{ "
+            s += ", ".join(index[key].wants)
+            s += " }"
+        print(s)

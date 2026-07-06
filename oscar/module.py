@@ -32,12 +32,14 @@ class Module:
         wants: List[str],
         download: Optional[str] = None,
         clone: Optional[str] = None,
+        license: Optional[str] = None,
     ):
         self.name = name
         self.wants = wants
         assert (download is None) ^ (clone is None)
         self.download = download
         self.clone = clone
+        self.license = license
 
     @staticmethod
     def from_dict(key: str, d: Dict[str, Any]) -> "Module":
@@ -45,7 +47,8 @@ class Module:
         wants = d.get("wants", [])
         download = d.get("download")
         clone = d.get("clone")
-        return Module(name, wants, download, clone)
+        license = d.get("license")
+        return Module(name, wants, download, clone, license)
 
     def get_installation_path(self) -> Path | None:
         project = Project.load(Path.cwd())

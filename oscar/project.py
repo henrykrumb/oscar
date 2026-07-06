@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 import click
 import semver
@@ -15,6 +15,7 @@ DEFAULT_PROJECT_TOML = """\
 name = "{name}"
 version = "0.1.0"
 oscar = "0.1.0"
+license = ""
 
 [project.variables]
 
@@ -50,7 +51,9 @@ PROJECT_FILES = {
 
 
 class Project:
-    def __init__(self, path: Path, name: str, version: str):
+    def __init__(
+        self, path: Path, name: str, version: str, license: Optional[str] = None
+    ):
         self.path = path
         self.name = name
         self.version = semver.Version.parse(version)
@@ -58,6 +61,7 @@ class Project:
             "project_name": f'"{self.name}"',
             "project_version": f'"{str(self.version)}"',
         }
+        self.license = license
         self.modules = {}
         self.ready = False
 

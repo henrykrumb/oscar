@@ -31,6 +31,7 @@ clone = "https://github.com/thehans/FunctionalOpenSCAD"
 
 [modules.constructive]
 clone = "https://github.com/solidboredom/constructive"
+license = "GPL-2.0"
 
 [modules.thread-profile]
 download = "https://github.com/MisterHW/IoP-satellite/blob/master/OpenSCAD%20bottle%20threads/thread_profile.scad"

@@ -3,6 +3,7 @@ Handle command line arguments and subcommands through `click`.
 """
 
 from pathlib import Path
+from typing import Literal
 
 import click
 
@@ -27,7 +28,7 @@ def cli():
 )
 def build(format):
     """
-    Build an entire project.
+    Build an entire project
 
     :param format: Export format
     :type format: Legal export format
@@ -92,10 +93,12 @@ def scad():
     click.secho(f"OpenSCAD user library path: {library_path}")
 
 
-@cli.command(help="")
+@cli.command(help="Pack an oscar project into an archive")
 @click.option("--output", "-o", type=click.Path(exists=False))
 def pack(output):
     """
+    Pack an oscar project into an archive
+
     :param output: _description_
     :type output: _type_
     """
@@ -103,11 +106,10 @@ def pack(output):
     project.pack(output)
 
 
-@cli.command(help="")
-def unpack():
-    """
-    """
-    raise NotImplementedError()
+@cli.command(help="Unpack an archived oscar project")
+@click.argument("filename")
+def unpack(filename):
+    Project.unpack(filename)
 
 
 @cli.command(help="Open the OpenSCAD editor inside the project environment")
@@ -122,19 +124,34 @@ def edit(watch: bool):
     """
     project = Project.load(Path.cwd())
     scad = ScadInterface()
-    scad.edit(project.scad_files, variables=project.variables, cwd=project.path)
+    scad.edit(
+        project.scad_files,
+        variables=project.variables,
+        cwd=project.path,
+    )
 
 
 @cli.command(help="Update an oscar project's version")
 @click.argument("value", type=click.Choice(["major", "minor", "patch"]))
-def bump(value):
+def bump(value: Literal["major", "minor", "patch"]):
+    """
+    Update an oscar project's version.
+
+    :param value: _description_
+    :type value: Literal[&quot;major&quot;, &quot;minor&quot;, &quot;patch&quot;]
+    """
     project = Project.load(Path.cwd())
     project.bump(value)
 
 
 @cli.command(help="Install an indexed OpenSCAD library")
 @click.option("--system", "-s", is_flag=True, help="Install in OpenSCAD library path")
-@click.option("--reinstall", "-r", is_flag=True, help="Force reinstallation of module and dependencies")
+@click.option(
+    "--reinstall",
+    "-r",
+    is_flag=True,
+    help="Force reinstallation of module and dependencies",
+)
 @click.argument("module")
 def install(system, reinstall, module):
     index = ModuleIndex()
@@ -144,8 +161,8 @@ def install(system, reinstall, module):
         index.install_local(module, force=reinstall)
 
 
-@cli.command("index")
-@click.option("-d", "--dependencies", is_flag=True)
+@cli.command(help="List installable modules in module index")
+@click.option("-d", "--dependencies", is_flag=True, help="List dependencies")
 def index(dependencies):
     index = ModuleIndex()
     module_keys = sorted(list(index.modules.keys()))

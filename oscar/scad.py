@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -51,6 +52,7 @@ class ScadInterface:
         input_paths: List[Path],
         variables: Optional[Dict] = None,
         cwd: Optional[Path] = None,
+        env: Optional[Dict[str, str]] = None,
     ):
         """
         Open the OpenSCAD editor inside a specified cwd.
@@ -67,7 +69,7 @@ class ScadInterface:
         if variables is not None:
             for k, v in variables.items():
                 cmd.extend(["-D", f"{k}={v}"])
-        subprocess.run(cmd, cwd=cwd)
+        subprocess.run(cmd, cwd=cwd, env=env)
 
     def compile(
         self,
@@ -77,6 +79,7 @@ class ScadInterface:
         ascii: bool = True,
         variables: Optional[Dict] = None,
         cwd: Optional[Path] = None,
+        env: Optional[Dict[str, str]] = None,
     ):
         """
         Use OpenSCAD to compile an input `*.scad` file.
@@ -102,7 +105,7 @@ class ScadInterface:
         if variables is not None:
             for k, v in variables.items():
                 cmd.extend(["-D", f"{k}={v}"])
-        subprocess.run(cmd, cwd=cwd)
+        subprocess.run(cmd, cwd=cwd, env=env)
 
     def info(self) -> str:
         """

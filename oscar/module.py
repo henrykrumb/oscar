@@ -113,10 +113,6 @@ class Module:
         self.install(destination, force=force)
 
     def install_local(self, force: bool = True):
-        if len(self.wants) > 0:
-            logging.warning(
-                f"Module {self.name}: Local install with dependencies is experimental."
-            )
         project = Project.load(Path.cwd())
         project.modules[self.name] = "local"
         project.save()

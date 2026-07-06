@@ -116,6 +116,12 @@ class Project:
         project = Project(path, name, version)
         if "variables" in config["project"]:
             project.variables.update(config["project"]["variables"])
+        if os.environ.get("OPENSCADPATH") is not None:
+            os.environ["OPENSCADPATH"] = ":".join(
+                [os.environ["OPENSCADPATH"], str(project.modules_path)]
+            )
+        else:
+            os.environ["OPENSCADPATH"] = str(project.modules_path)
         project.ready = True
         return project
 
@@ -144,6 +150,10 @@ class Project:
         :rtype: _type_
         """
         return self.path / "src"
+
+    @property
+    def modules_path(self):
+        return self.path / "modules"
 
     @property
     def scad_files(self):

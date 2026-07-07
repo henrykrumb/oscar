@@ -79,6 +79,7 @@ class ScadInterface:
         variables: Optional[Dict] = None,
         cwd: Optional[Path] = None,
         env: Optional[Dict[str, str]] = None,
+        colorscheme: str = "Nature"
     ):
         """
         Use OpenSCAD to compile an input `*.scad` file.
@@ -95,10 +96,12 @@ class ScadInterface:
         :type variables: Optional[Dict], optional
         :param cwd: Current working directory (relevant for imports/includes), defaults to None
         :type cwd: Optional[Path], optional
+        :param colorscheme: Colorscheme, defaults to "Nature"
+        :type colorscheme: str
         """
         assert output_format in SUPPORTED_EXPORT_FORMATS
         output_path = output_path or input_path.with_suffix(f".{output_format}")
-        cmd = [self.binary, str(input_path), "-o", str(output_path)]
+        cmd = [self.binary, str(input_path), "-o", str(output_path), "--colorscheme", colorscheme]
         if not ascii and output_format == "stl":
             cmd.extend(["--export-format", "binstl"])
         if variables is not None:

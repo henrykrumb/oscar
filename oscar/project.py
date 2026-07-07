@@ -3,8 +3,11 @@ from pathlib import Path
 from typing import Literal, Optional
 
 import click
+import cv2
+import numpy as np
 import semver
 import toml
+from PIL import Image
 
 from .constants import SUPPORTED_EXPORT_FORMATS, ExportFormatType
 from .scad import ScadInterface
@@ -43,7 +46,7 @@ oscar.lock
 """
 
 
-PROJECT_DIRECTORIES = ["src", "build", "modules"]
+PROJECT_DIRECTORIES = ["assets", "src", "build", "modules"]
 PROJECT_FILES = {
     "oscar.toml": DEFAULT_PROJECT_TOML,
     ".gitignore": DEFAULT_GITIGNORE_CONTENT,
@@ -93,14 +96,6 @@ class Project:
 
     @staticmethod
     def validate_project_dir(path: Path):
-        """
-        _summary_
-
-        :param path: _description_
-        :type path: Path
-        :raises RuntimeError: _description_
-        :raises RuntimeError: _description_
-        """
         for directory in PROJECT_DIRECTORIES:
             if not (path / directory).is_dir():
                 raise RuntimeError(
@@ -146,14 +141,16 @@ class Project:
         self.save()
 
     @property
-    def source_path(self):
-        """
-        _summary_
+    def assets_path(self):
+        return self.path / "assets"
 
-        :return: _description_
-        :rtype: _type_
-        """
+    @property
+    def source_path(self):
         return self.path / "src"
+
+    @property
+    def build_path(self):
+        return self.path / "build"
 
     @property
     def modules_path(self):
@@ -178,14 +175,13 @@ class Project:
         """
         Project.validate_project_dir(self.path)
         scad = ScadInterface()
-        source_path = self.path / "src"
-        output_path = self.path / "build"
-        for input_file in source_path.glob("*.scad"):
+        for input_file in self.source_path.glob("*.scad"):
             if input_file.name.startswith("_"):
                 continue
+            # TODO quiet mode
             click.secho(f"Building file {input_file}...", fg="blue")
             output_filename = (
-                output_path / input_file.with_suffix(f".{output_format}").name
+                self.build_path / input_file.with_suffix(f".{output_format}").name
             )
             config_override = parse_scad_shebang(input_file)
             output_format = config_override.get("export-format", output_format)
@@ -194,13 +190,15 @@ class Project:
                 output_path=output_filename,
                 output_format=output_format,
                 variables=self.variables,
-                cwd=source_path,
+                cwd=self.source_path,
             )
             # TODO increment build counter for part and save value to oscar.lock
+            # TODO quiet mode
             click.secho(
                 f"Done building {input_file}, result can be found in {output_filename} .",
                 fg="green",
             )
+        self.make_thumbnails()
 
     def clean(self):
         """
@@ -235,3 +233,25 @@ class Project:
     @staticmethod
     def unpack(path: Path):
         raise NotImplementedError
+
+    def make_thumbnails(self):
+        Project.validate_project_dir(self.path)
+        scad = ScadInterface()
+        for input_file in self.source_path.glob("*.scad"):
+            if input_file.name.startswith("_"):
+                continue
+            output_filename = self.build_path / input_file.with_suffix(".png").name
+            scad.compile(
+                input_file,
+                output_path=output_filename,
+                output_format="png",
+                variables=self.variables,
+                cwd=self.source_path,
+            )
+            # replace white with transparency
+            img = Image.open(output_filename).convert("RGBA")
+            img = np.array(img)
+            img[(img[:, :, :3] == 250).all(axis=2), 3] = 0
+            img = cv2.GaussianBlur(img, (3, 3), 1)
+            img = cv2.medianBlur(img, 7)
+            Image.fromarray(img).save(output_filename)

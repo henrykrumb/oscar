@@ -14,11 +14,11 @@
 Features:
 * Easily install indexed third-party OpenSCAD modules (libraries)
 * Semantic versioning of projects
+* Auto-generate thumbnails of individual parts
 
 Planned features:
 * Auto-export 3D models (e.g. STL) upon save (optional)
 * Packing and unpacking projects for distribution
-* Auto-generate thumbnails
 * Generate animations
 * Explosion drawings
 * Dimension drawings

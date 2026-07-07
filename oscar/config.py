@@ -26,18 +26,22 @@ license = "GPL-2.0"
 
 [modules.dotSCAD]
 download = "https://github.com/JustinSDK/dotSCAD/archive/refs/tags/v3.3.zip"
+license = "LGPL-3.0"
 
 [modules.FunctionalOpenSCAD]
 clone = "https://github.com/thehans/FunctionalOpenSCAD"
+license = "MIT"
 
 [modules.list-comprehension-demos]
 clone = "https://github.com/openscad/list-comprehension-demos"
 
 [modules.NopSCADlib]
 clone = "https://github.com/nophead/NopSCADlib"
+license = "GPL-3.0"
 
 [modules.scad-utils]
 clone = "https://github.com/openscad/scad-utils"
+license = "MIT"
 
 [modules.StoneAgeLib]
 clone = "https://github.com/Stone-Age-Sculptor/StoneAgeLib"
@@ -49,6 +53,7 @@ download = "https://github.com/MisterHW/IoP-satellite/blob/master/OpenSCAD%20bot
 [modules.threadlib]
 wants = [ "scad-utils", "list-comprehension-demos", "thread-profile" ]
 clone = "https://github.com/adrianschlatter/threadlib"
+license = "BSD-3-Clause"
 
 [modules.UBscad]
 name = "UB.scad"
